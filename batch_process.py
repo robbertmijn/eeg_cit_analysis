@@ -8,7 +8,7 @@ import multiprocessing as mp
 from itertools import product
 
 import analysis_utils as au
-SUBJECTS = [1]
+SUBJECTS = [1, 2, 3]
 # au.eet.read_subject.clear()
 # au.eet.autoreject_epochs.clear()
 au.proc_subject.clear()
