@@ -25,7 +25,7 @@ def proc_subject(subject):
     sdm = extract_dm(raw, events, metadata)
 
     print(f'calculate all stats {subject}')
-    stats = do_all_cpt(sdm.T1_correct == 1, ['pz', 'theta', 'pupil'], ['probe', 'control'], ['familiar', 'unfamiliar'])
+    stats = do_all_cpt(sdm.T1_correct == 1, ['pz', 'theta', 'fz', 'cz', 'pupil'], ['probe', 'control', 'target'], ['familiar', 'unfamiliar'])
     
     return sdm, stats
 
@@ -117,7 +117,7 @@ def do_cpt(dm, dv, level, condition):
     result.dv = dv
     result.level = level
     result.condition = condition
-    ref = 'probe' if level == 'probe' else 'distractor'
+    ref = level if level != 'control' else 'distractor'
     if not temp[f'T1[T.{ref}]']:
         pvalue = 1
         result.start = 0
