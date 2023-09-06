@@ -10,7 +10,6 @@ import time_series_test as tst
 
 
 CHANNELS = ['Fz', 'Pz', 'Cz']
-UNUSED = 'FP1', 'FPz', 'FP2', 'F7', 'F8', 'FC1', 'FC2', 'FC1', 'FC2', 'T7', 'T8', 'CP1', 'CP2', 'POz', 'O1', 'Oz', 'O2', 'Digi'
 FULL_FREQS = np.arange(4, 30, 2)
 T1_TRIGGER = 2
 RSVP_TRIGGER = 1

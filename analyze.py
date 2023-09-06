@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import analysis_utils as au
 COLDICT = {'target': '#c94733', 'probe': '#0d5b26', 'control': '#2e5fa1', 'distractor': 'gray'}
-SUBJECTS = [1]
+SUBJECTS = [1, 2, 3]
 
 #%%
 ## Memoized functions; uncomment to rerun and cache
@@ -22,34 +22,6 @@ for s, sdm in ops.split(dm.subject_nr):
         print(f"{t1}: {tdm.T1_correct.mean*100:.1f}% correct")
 
 dm = dm.T1_correct == 1
-
-#%% Time Frequency Plots
-x = np.arange(0, dm.pupil.depth)
-
-fig, axes = plt.subplots(2, 2, constrained_layout=True, sharey=True, sharex=True)
-frow = 0
-for condition, cdm in ops.split(dm.condition):
-    # Plot overall Z scores and the difference between probe and control
-    dm_control = cdm.T1 == 'control'
-    dm_probe = cdm.T1 == 'probe'
-    dm_distractor = cdm.T1 == 'distractor'
-    probe = dm_probe.tfr_T1_z[..., ...] - dm_distractor.tfr_T1_z[..., ...]
-    control = dm_control.tfr_T1_z[..., ...] - dm_distractor.tfr_T1_z[..., ...]
-    m = axes[frow, 0].imshow(control, aspect='auto', cmap='jet',vmax = 0.3, vmin = -0.1)
-    axes[frow, 0].set_yticks(np.arange(0, 13, step=2), np.arange(4, 30, step=4))
-    axes[frow, 0].set_title(f'Control - Distractor ({condition})')
-    n = axes[frow, 1].imshow(probe, aspect='auto', cmap='jet', vmin = -0.1, vmax = 0.3)
-    axes[frow, 1].set_title(f'Probe - Distractor ({condition})')
-    frow += 1
-
-plt.colorbar(n, ticks=np.arange(-0.1, 0.35, step=0.1), ax=axes[:, 1])
-for ax in axes.flat:
-    au.set_xticks(ax, dm.pupil, 400)
-fig.supxlabel('Time since T1 onset (ms)')
-fig.supxlabel('Frequency (Hz)')
-fig.supylabel('Z difference')
-fig.suptitle(f'Grand Average {len(dm.subject_nr.unique)} pps')
-plt.show()
 
 #%% ERP plots
 fcol = 0
@@ -98,14 +70,11 @@ for s in SUBJECTS:
                 ax.fill_between(x, y - std, y + std, alpha=.2, color=COLDICT[t1])
                 
                 if t1 in ['probe', 'control']:
-                    refcat = 'probe' if t1 == 'probe' else 'distractor'
-                    cpt_result = au.do_cpt(cdm, dv, t1, condition)
-                    if len(cpt_result[f'T1[T.{refcat}]']) > 0:
-                        if cpt_dv[0].p < .05:
-                            pass
-                            start = int(cpt_dv[0].start)
-                            end = int(cpt_dv[0].end)
-                            ax.plot(x[start:end], y[start:end], linewidth=3, color=COLDICT[t1])
+                    stat = (stats.condition == condition) & (stats.dv == dv) & (stats.level == t1)
+                    if stat.p < .05:
+                        start = stat[0].start
+                        end = stat[0].end
+                        ax.plot(x[start:end], y[start:end], linewidth=3, color=COLDICT[t1])
 
                 ax.set_title(f'{dv} ({condition})')
 
@@ -122,5 +91,31 @@ for s in SUBJECTS:
     fig.supxlabel('Time since T1 onset (ms)')
     axes[0,0].legend(frameon=False)
     fig.suptitle(f'Average pp {s}')
-# %%
 
+#%% Time Frequency Plots
+x = np.arange(0, dm.pupil.depth)
+
+fig, axes = plt.subplots(2, 2, constrained_layout=True, sharey=True, sharex=True)
+frow = 0
+for condition, cdm in ops.split(dm.condition):
+    # Plot overall Z scores and the difference between probe and control
+    dm_control = cdm.T1 == 'control'
+    dm_probe = cdm.T1 == 'probe'
+    dm_distractor = cdm.T1 == 'distractor'
+    probe = dm_probe.tfr_T1_z[..., ...] - dm_distractor.tfr_T1_z[..., ...]
+    control = dm_control.tfr_T1_z[..., ...] - dm_distractor.tfr_T1_z[..., ...]
+    m = axes[frow, 0].imshow(control, aspect='auto', cmap='jet',vmax = 0.3, vmin = -0.1)
+    axes[frow, 0].set_yticks(np.arange(0, 13, step=2), np.arange(4, 30, step=4))
+    axes[frow, 0].set_title(f'Control - Distractor ({condition})')
+    n = axes[frow, 1].imshow(probe, aspect='auto', cmap='jet', vmin = -0.1, vmax = 0.3)
+    axes[frow, 1].set_title(f'Probe - Distractor ({condition})')
+    frow += 1
+
+plt.colorbar(n, ticks=np.arange(-0.1, 0.35, step=0.1), ax=axes[:, 1])
+for ax in axes.flat:
+    au.set_xticks(ax, dm.pupil, 400)
+fig.supxlabel('Time since T1 onset (ms)')
+fig.supxlabel('Frequency (Hz)')
+fig.supylabel('Z difference')
+fig.suptitle(f'Grand Average {len(dm.subject_nr.unique)} pps')
+plt.show()
