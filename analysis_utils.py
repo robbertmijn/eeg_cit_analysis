@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt
 from eyelinkparser import parse, defaulttraceprocessor
 from mne.time_frequency import tfr_morlet
 import time_series_test as tst
+import warnings
 
 
 CHANNELS = ['Fz', 'Pz', 'Cz']
@@ -113,7 +114,10 @@ def do_cpt(dm, dv, level, condition):
     result = DataMatrix(1)
     tdm = dm.T1 == {'distractor', level}
     tdm = tdm.condition == condition
-    temp = tst.lmer_permutation_test(tdm, formula=f'{dv} ~ T1', groups=None, iterations=PERMUTATIONS, cluster_p_threshold=.05, suppress_convergence_warnings=True)
+    groups = None if len(dm.subject_nr.unique) > 2 else "subject_nr"
+    with warnings.catch_warnings():
+        warnings.simplefilter(action='ignore', category=UserWarning)
+        temp = tst.lmer_permutation_test(tdm, formula=f'{dv} ~ T1', groups=groups, iterations=PERMUTATIONS, cluster_p_threshold=.05, suppress_convergence_warnings=True)
     result.dv = dv
     result.level = level
     result.condition = condition

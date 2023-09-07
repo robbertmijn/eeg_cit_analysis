@@ -8,10 +8,10 @@ import multiprocessing as mp
 from itertools import product
 
 import analysis_utils as au
-SUBJECTS = [1, 2, 3]
+SUBJECTS = [1, 2, 3, 4]
 # au.eet.read_subject.clear()
 # au.eet.autoreject_epochs.clear()
-au.proc_subject.clear()
+# au.proc_subject.clear()
 # au.extract_dm.clear()
 au.do_cpt.clear()
 
@@ -39,5 +39,6 @@ if __name__ == '__main__':
             pool.map(process_subject, subjects)
     
     print("START merge")
-    au.get_merged_data(subjects)
+    dm, stats = au.get_merged_data(subjects)
+    au.do_all_cpt(dm.T1_correct == 1, ['pz', 'theta', 'fz', 'cz', 'pupil'], ['probe', 'control', 'target'], ['familiar', 'unfamiliar'])
     print("DONE merge")
