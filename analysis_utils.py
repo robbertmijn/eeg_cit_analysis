@@ -10,6 +10,7 @@ import time_series_test as tst
 import warnings
 
 
+COLDICT = {'target': '#c94733', 'probe': '#0d5b26', 'control': '#2e5fa1', 'distractor': 'gray'}
 CHANNELS = ['Fz', 'Pz', 'Cz']
 FULL_FREQS = np.arange(4, 30, 2)
 T1_TRIGGER = 2
@@ -137,6 +138,7 @@ def do_cpt(dm, dv, level, condition):
     return result
 
 
+@fnc.memoize(persistent=True, folder='_stats')
 def do_all_cpt(dm, dv, level, condition):
     stats = DataMatrix()
     for d in dv:
@@ -148,5 +150,50 @@ def do_all_cpt(dm, dv, level, condition):
     return stats
 
 
-def set_xticks(ax, dv, step):
-    ax.set_xticks(ticks = np.arange(4, dv.depth, 100), labels=np.arange(0,  1000, 400))
+def set_xticks(ax, depth):
+    ax.set_xticks(ticks=np.arange(4, depth, 100), labels=np.arange(0,  1000, 400))
+
+
+def equal_axes(axes, depth):
+
+    for ax in axes.flat:
+        set_xticks(ax, depth)
+
+    for ax in axes:
+        min = np.min([ax[0].get_ylim()[0], ax[1].get_ylim()[0]])
+        max = np.max([ax[0].get_ylim()[1], ax[1].get_ylim()[1]])
+        ax[0].set_ylim(min, max)
+        ax[1].set_ylim(min, max)
+
+
+def ERP_plots(dm, title, stats=None):
+    fcol = 0
+    fig, axes = plt.subplots(3, 2, constrained_layout=True, sharex = True)
+    for condition, cdm in ops.split(dm.condition):
+        for t1, tdm in ops.split(cdm.T1):
+            plot_dv(axes[0, fcol], tdm, t1, 'pupil', condition, stats)
+            plot_dv(axes[1, fcol], tdm, t1, 'pz', condition, stats)
+            plot_dv(axes[2, fcol], tdm, t1, 'theta', condition, stats)
+
+        fcol += 1
+
+    equal_axes(axes, tdm.pupil.depth)
+    fig.supxlabel('Time since T1 onset (ms)')
+    axes[0,0].legend(frameon=False)
+    fig.suptitle(title)
+
+
+def plot_dv(ax, dm, t1, dv, condition, stats=None):
+    x = np.arange(0, dm[dv].depth)
+    n = (~np.isnan(dm[dv])).sum(axis=0)
+    y = dm[dv].mean
+    std = y  / np.sqrt(n)
+    ax.plot(y, label=t1)
+    ax.fill_between(x, y - std, y + std, alpha=.2, color=COLDICT[t1])
+    
+    if stats and t1 in ['probe', 'control', 'target']:
+        stat = (stats.condition == condition) & (stats.dv == dv) & (stats.level == t1)
+        if stat.p < .05:
+            start = stat[0].start
+            end = stat[0].end
+            ax.plot(x[start:end], y[start:end], linewidth=3, color=COLDICT[t1])

@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import analysis_utils as au
 COLDICT = {'target': '#c94733', 'probe': '#0d5b26', 'control': '#2e5fa1', 'distractor': 'gray'}
-SUBJECTS = [1, 2, 3]
+SUBJECTS = [1, 2, 3, 4]
 
 #%%
 ## Memoized functions; uncomment to rerun and cache
@@ -14,6 +14,7 @@ SUBJECTS = [1, 2, 3]
 # au.proc_subject.clear()
 # au.get_merged_data.clear()
 dm, stats = au.get_merged_data(SUBJECTS)
+GA_stats = au.do_all_cpt(dm.T1_correct == 1, ['pz', 'theta', 'fz', 'cz', 'pupil'], ['probe', 'control', 'target'], ['familiar', 'unfamiliar'])
 
 # print accuracy
 for s, sdm in ops.split(dm.subject_nr):
@@ -23,74 +24,13 @@ for s, sdm in ops.split(dm.subject_nr):
 
 dm = dm.T1_correct == 1
 
-#%% ERP plots
-fcol = 0
-fig, axes = plt.subplots(3, 2, constrained_layout=True, sharex = True)
-for condition, cdm in ops.split(dm.condition):
-    for t1, tdm in ops.split(cdm.T1):
-        
-        def plot_dv(ax, dv, title):
-            x = np.arange(0, dv.depth)
-            n = (~np.isnan(dv)).sum(axis=0)
-            y = dv.mean
-            std = y  / np.sqrt(n)
-            ax.plot(y, label=t1)
-            ax.fill_between(x, y - std, y + std, alpha=.2, color=COLDICT[t1])
-            ax.set_title(title)
+#%% ERP GA plots
+au.ERP_plots(dm, f'Grand Average {len(dm.subject_nr.unique)} pps', GA_stats)
 
-        plot_dv(axes[0, fcol], tdm.pupil, f'pupil ({condition})')
-        plot_dv(axes[1, fcol], tdm.pz, f'Pz ({condition})')
-        plot_dv(axes[2, fcol], tdm.theta, f'Theta ({condition})')
-
-    fcol += 1
-
-for ax in axes.flat:
-    au.set_xticks(ax, dm.pupil, 400)
-
-fig.supxlabel('Time since T1 onset (ms)')
-axes[0,0].legend(frameon=False)
-fig.suptitle(f'Grand Average {len(dm.subject_nr.unique)} pps')
-
-# %% per participant
-
+#%% ERP per participant
 for s in SUBJECTS:
-    fig, axes = plt.subplots(3, 2, constrained_layout=True, sharex = True)
-    fcol = 0
     sdm, stats = au.proc_subject(s)
-    for condition, cdm in ops.split(sdm.condition):
-
-        for t1, tdm in ops.split(cdm.T1):
-
-            def plot_dv(ax, dm, dv, condition):
-                x = np.arange(0, dm[dv].depth)
-                n = (~np.isnan(dm[dv])).sum(axis=0)
-                y = dm[dv].mean
-                std = y  / np.sqrt(n)
-                ax.plot(y, label=t1)
-                ax.fill_between(x, y - std, y + std, alpha=.2, color=COLDICT[t1])
-                
-                if t1 in ['probe', 'control']:
-                    stat = (stats.condition == condition) & (stats.dv == dv) & (stats.level == t1)
-                    if stat.p < .05:
-                        start = stat[0].start
-                        end = stat[0].end
-                        ax.plot(x[start:end], y[start:end], linewidth=3, color=COLDICT[t1])
-
-                ax.set_title(f'{dv} ({condition})')
-
-
-            plot_dv(axes[0, fcol], tdm, 'pupil', condition)
-            plot_dv(axes[1, fcol], tdm, 'pz', condition)
-            plot_dv(axes[2, fcol], tdm, 'theta', condition)
-
-        fcol += 1
-
-    for ax in axes.flat:
-        au.set_xticks(ax, dm.pupil, 400)
-
-    fig.supxlabel('Time since T1 onset (ms)')
-    axes[0,0].legend(frameon=False)
-    fig.suptitle(f'Average pp {s}')
+    au.ERP_plots(sdm, f'pp {s}', stats)
 
 #%% Time Frequency Plots
 x = np.arange(0, dm.pupil.depth)
