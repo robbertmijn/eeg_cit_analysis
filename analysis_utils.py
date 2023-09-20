@@ -43,13 +43,28 @@ def extract_dm(raw, events, metadata):
     # Create dm from metadata
     sdm = cnv.from_pandas(metadata)
 
-    pupil = eet.PupilEpochs(raw, t1_triggers,
-                                    tmin=-.1, tmax=1, 
-                                    metadata=metadata,
-                                    baseline=(-.05, 0))
-    sdm.pupil = cnv.from_mne_epochs(pupil)
-    sdm.pupil = sdm.pupil[:, ...]
+    extract_pupil(sdm, raw, t1_triggers, metadata)
+    extract_ERP(sdm, raw, t1_triggers, metadata)
+    extract_TFR(sdm, raw, t1_triggers, metadata)
+
+    # Remove practice trials
+    sdm = sdm.practice == 'no'
+
+    return sdm
+
+
+def extract_pupil(sdm, raw, t1_triggers, metadata):
+        # Edit object in-place
+        pupil = eet.PupilEpochs(raw, t1_triggers,
+                                        tmin=-.1, tmax=1, 
+                                        metadata=metadata,
+                                        baseline=(-.05, 0))
+        sdm.pupil = cnv.from_mne_epochs(pupil)
+        sdm.pupil = sdm.pupil[:, ...]
     
+
+def extract_ERP(sdm, raw, t1_triggers, metadata):
+    # Edit object in-place
     # eet.autoreject_epochs.clear()
     # Extract ERP data
     epochs = eet.autoreject_epochs(raw, t1_triggers,
@@ -61,6 +76,9 @@ def extract_dm(raw, events, metadata):
     sdm.cz = sdm.erp_T1[:, 'Cz']
     del sdm.erp_T1
 
+
+def extract_TFR(sdm, raw, t1_triggers, metadata):
+    # Edit object in-place
     # Extract time-frequency data
     tfr_epochs = eet.autoreject_epochs(raw, t1_triggers,
                             tmin=-.5, tmax=2, metadata=metadata,
@@ -74,10 +92,6 @@ def extract_dm(raw, events, metadata):
     sdm.theta = sdm.tfr_T1_z[:, ..., :2][:, ...]
     sdm.alpha = sdm.tfr_T1_z[:, ..., 2:5][:, ...]
     sdm.beta = sdm.tfr_T1_z[:, ..., 5:][:, ...]
-
-    sdm = sdm.practice == 'no'
-
-    return sdm
 
 
 def get_merged_data(SUBJECTS):

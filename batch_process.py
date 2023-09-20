@@ -13,7 +13,8 @@ SUBJECTS = [1, 2, 3, 4, 5, 6, 7]
 # au.eet.autoreject_epochs.clear()
 # au.proc_subject.clear()
 # au.extract_dm.clear()
-au.do_cpt.clear()
+# au.do_cpt.clear()
+# au.do_all_cpt.clear()
 
 def process_subject(subject_nr):
     print("START preprocessing pp {}".format(subject_nr))
