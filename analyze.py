@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import analysis_utils as au
 COLDICT = {'target': '#c94733', 'probe': '#0d5b26', 'control': '#2e5fa1', 'distractor': 'gray'}
-SUBJECTS = [1, 2, 3, 4, 5]
+SUBJECTS = [1, 2, 3, 4, 5, 6, 7]
 
 #%%
 ## Memoized functions; uncomment to rerun and cache
@@ -25,6 +25,16 @@ for s, sdm in ops.split(dm.subject_nr):
 dm = dm.T1_correct == 1
 
 #%% ERP GA plots
+'''
+"Familiar": the probe in these blocks are the pp parent
+"Unfamiliar": the probe in these blocks are another random control
+Blocks are presented in random order
+
+
+Plot traces, mark clusters "bold" that show a difference between that trace and the distractor. 
+
+In the unfamiliar blocks, we expect only "target" to show a difference.
+'''
 au.ERP_plots(dm, f'Grand Average {len(dm.subject_nr.unique)} pps', GA_stats)
 
 #%% ERP per participant

@@ -26,6 +26,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--n-process', action='store', default=2)
     parser.add_argument('--subjects', action='store', default='all')
+    parser.add_argument('--GA_stats', action='store', default=True)
     args = parser.parse_args()
     print(f'using {args.n_process} processes')
     if args.subjects == 'all':
@@ -41,5 +42,7 @@ if __name__ == '__main__':
     
     print("START merge")
     dm, stats = au.get_merged_data(subjects)
-    au.do_all_cpt(dm.T1_correct == 1, ['pz', 'theta', 'fz', 'cz', 'pupil'], ['probe', 'control', 'target'], ['familiar', 'unfamiliar'])
+    if args.GA_stats:
+        print("GA stats...")
+        au.do_all_cpt(dm.T1_correct == 1, ['pz', 'theta', 'fz', 'cz', 'pupil'], ['probe', 'control', 'target'], ['familiar', 'unfamiliar'])
     print("DONE merge")
