@@ -18,7 +18,7 @@ RSVP_TRIGGER = 1
 PERMUTATIONS = 1000
 
 @fnc.memoize(persistent=True, folder='_loaded')
-def proc_subject(subject):
+def proc_subject(subject, stats=True):
 
     print(f'read subject {subject}')
     raw, events, metadata = eet.read_subject(subject, eeg_preprocessing = True)
@@ -26,9 +26,12 @@ def proc_subject(subject):
     print(f'extracting dm {subject}')
     sdm = extract_dm(raw, events, metadata)
 
-    print(f'calculate all stats {subject}')
-    stats = do_all_cpt(sdm.T1_correct == 1, ['pz', 'theta', 'fz', 'cz', 'pupil'], ['probe', 'control', 'target'], ['familiar', 'unfamiliar'])
-    
+    if stats:
+        print(f'calculate all stats {subject}')
+        stats = do_all_cpt(sdm.T1_correct == 1, ['pz', 'theta', 'fz', 'cz', 'pupil'], ['probe', 'control', 'target'], ['familiar', 'unfamiliar'])
+    else:
+        stats = None
+
     return sdm, stats
 
 
@@ -190,6 +193,7 @@ def plot_dv(ax, dm, t1, dv, condition, stats=None):
     std = y  / np.sqrt(n)
     ax.plot(y, label=t1)
     ax.fill_between(x, y - std, y + std, alpha=.2, color=COLDICT[t1])
+    ax.set_title(f'{dv} {condition}')
     
     if stats and t1 in ['probe', 'control', 'target']:
         stat = (stats.condition == condition) & (stats.dv == dv) & (stats.level == t1)

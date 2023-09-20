@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import analysis_utils as au
 COLDICT = {'target': '#c94733', 'probe': '#0d5b26', 'control': '#2e5fa1', 'distractor': 'gray'}
-SUBJECTS = [1, 2, 3, 4]
+SUBJECTS = [1, 2, 3, 4, 5]
 
 #%%
 ## Memoized functions; uncomment to rerun and cache
