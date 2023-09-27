@@ -9,12 +9,12 @@ from itertools import product
 
 import analysis_utils as au
 SUBJECTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-# au.eet.read_subject.clear()
-# au.eet.autoreject_epochs.clear()
-# au.proc_subject.clear()
-# au.extract_dm.clear()
-# au.do_cpt.clear()
-# au.do_all_cpt.clear()
+au.eet.read_subject.clear()
+au.eet.autoreject_epochs.clear()
+au.proc_subject.clear()
+au.extract_dm.clear()
+au.do_cpt.clear()
+au.do_all_cpt.clear()
 
 def process_subject(subject_nr):
     print("START preprocessing pp {}".format(subject_nr))

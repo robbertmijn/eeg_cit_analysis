@@ -8,7 +8,7 @@ from eyelinkparser import parse, defaulttraceprocessor
 from mne.time_frequency import tfr_morlet
 import time_series_test as tst
 import warnings
-
+from itertools import product
 
 COLDICT = {'target': '#c94733', 'probe': '#0d5b26', 'control': '#2e5fa1', 'distractor': 'gray'}
 CHANNELS = ['Fz', 'Pz', 'Cz']
@@ -54,13 +54,13 @@ def extract_dm(raw, events, metadata):
 
 
 def extract_pupil(sdm, raw, t1_triggers, metadata):
-        # Edit object in-place
-        pupil = eet.PupilEpochs(raw, t1_triggers,
-                                        tmin=-.1, tmax=1, 
-                                        metadata=metadata,
-                                        baseline=(-.05, 0))
-        sdm.pupil = cnv.from_mne_epochs(pupil)
-        sdm.pupil = sdm.pupil[:, ...]
+    # Edit object in-place
+    pupil = eet.PupilEpochs(raw, t1_triggers,
+                                    tmin=-.1, tmax=1, 
+                                    metadata=metadata,
+                                    baseline=(-.05, 0))
+    sdm.pupil = cnv.from_mne_epochs(pupil)
+    sdm.pupil = sdm.pupil[:, ...]
     
 
 def extract_ERP(sdm, raw, t1_triggers, metadata):
@@ -158,12 +158,13 @@ def do_cpt(dm, dv, level, condition):
 @fnc.memoize(persistent=True, folder='_stats')
 def do_all_cpt(dm, dv, level, condition):
     stats = DataMatrix()
-    for d in dv:
-        for l in level:
-            for c in condition:
-                print(f'dv: {d}, level: {l}, condition: {c}')
-                # do_cpt.clear()
-                stats <<= do_cpt(dm, d, l, c)
+
+    tests = list(product(dv, level, condition))
+
+    for d, l, c in tests:
+        print(f'pp {dm.subject_nr.unique[0]}, dv: {d}, level: {l}, condition: {c}')
+        # do_cpt.clear()
+        stats <<= do_cpt(dm, d, l, c)
     return stats
 
 
