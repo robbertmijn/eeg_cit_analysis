@@ -97,11 +97,11 @@ def extract_TFR(sdm, raw, t1_triggers, metadata):
     sdm.beta = sdm.tfr_T1_z[:, ..., 5:][:, ...]
 
 
-def get_merged_data(SUBJECTS):
+def get_merged_data(SUBJECTS, stats=True):
     dm = DataMatrix()
     all_stats = []
     for subject in SUBJECTS:
-        sdm, stats = proc_subject(subject)
+        sdm, stats = proc_subject(subject, stats)
 
         dm <<= sdm
         all_stats.append(stats)
