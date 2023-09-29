@@ -20,7 +20,7 @@ DV = ['pz', 'theta', 'fz', 'cz', 'pupil']
 LEVEL = ['probe', 'control', 'target']
 CONDITION = ['familiar', 'unfamiliar']
 
-@fnc.memoize(persistent=True, folder='_loaded')
+@fnc.memoize(persistent=True, folder='_processed')
 def proc_subject(subject, stats=True):
 
     print(f'read subject {subject}')

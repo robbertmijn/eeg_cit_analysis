@@ -9,7 +9,7 @@ from itertools import product
 
 import analysis_utils as au
 SUBJECTS = list(range(1, 19))
-INDIV_STATS = False
+INDIV_STATS = True
 
 # au.eet.read_subject.clear()
 # au.eet.autoreject_epochs.clear()
