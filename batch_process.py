@@ -8,8 +8,7 @@ import multiprocessing as mp
 from itertools import product
 
 import analysis_utils as au
-# SUBJECTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
-SUBJECTS = list(range(1, 18))
+SUBJECTS = list(range(1, 19))
 INDIV_STATS = False
 
 # au.eet.read_subject.clear()
