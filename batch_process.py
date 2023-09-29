@@ -8,17 +8,20 @@ import multiprocessing as mp
 from itertools import product
 
 import analysis_utils as au
-SUBJECTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-au.eet.read_subject.clear()
-au.eet.autoreject_epochs.clear()
-au.proc_subject.clear()
-au.extract_dm.clear()
-au.do_cpt.clear()
-au.do_all_cpt.clear()
+# SUBJECTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+SUBJECTS = list(range(1, 18))
+INDIV_STATS = False
+
+# au.eet.read_subject.clear()
+# au.eet.autoreject_epochs.clear()
+# au.proc_subject.clear()
+# au.extract_dm.clear()
+# au.do_cpt.clear()
+# au.do_all_cpt.clear()
 
 def process_subject(subject_nr):
     print("START preprocessing pp {}".format(subject_nr))
-    au.proc_subject(subject_nr)
+    au.proc_subject(subject_nr, stats=INDIV_STATS)
     print("DONE preprocessing pp {}".format(subject_nr))
 
 
@@ -41,7 +44,7 @@ if __name__ == '__main__':
             pool.map(process_subject, subjects)
     
     print("START merge")
-    dm, stats = au.get_merged_data(subjects)
+    dm, stats = au.get_merged_data(subjects, stats=INDIV_STATS)
     if args.GA_stats:
         print("GA stats...")
         au.do_all_cpt(dm.T1_correct == 1, ['pz', 'theta', 'fz', 'cz', 'pupil'], ['probe', 'control', 'target'], ['familiar', 'unfamiliar'])

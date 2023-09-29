@@ -16,6 +16,9 @@ FULL_FREQS = np.arange(4, 30, 2)
 T1_TRIGGER = 2
 RSVP_TRIGGER = 1
 PERMUTATIONS = 1000
+DV = ['pz', 'theta', 'fz', 'cz', 'pupil']
+LEVEL = ['probe', 'control', 'target']
+CONDITION = ['familiar', 'unfamiliar']
 
 @fnc.memoize(persistent=True, folder='_loaded')
 def proc_subject(subject, stats=True):
@@ -28,7 +31,7 @@ def proc_subject(subject, stats=True):
 
     if stats:
         print(f'calculate all stats {subject}')
-        stats = do_all_cpt(sdm.T1_correct == 1, ['pz', 'theta', 'fz', 'cz', 'pupil'], ['probe', 'control', 'target'], ['familiar', 'unfamiliar'])
+        stats = do_all_cpt(sdm.T1_correct == 1, DV, LEVEL, CONDITION)
     else:
         stats = None
 
@@ -83,7 +86,7 @@ def extract_TFR(sdm, raw, t1_triggers, metadata):
     tfr_epochs = eet.autoreject_epochs(raw, t1_triggers,
                             tmin=-.5, tmax=2, metadata=metadata,
                             picks=CHANNELS, baseline=(-.1, 0))
-    morlet = tfr_morlet(tfr_epochs, FULL_FREQS, decim=1, n_cycles=2,
+    morlet = tfr_morlet(tfr_epochs, FULL_FREQS, decim=4, n_cycles=2,
                         average=False, return_itc=False)
     morlet.crop(-.1, 1)
     sdm.tfr_T1 = cnv.from_mne_tfr(morlet)
