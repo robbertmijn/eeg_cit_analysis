@@ -164,8 +164,8 @@ def do_all_cpt(dm, dv, level, condition):
 
     tests = list(product(dv, level, condition))
 
-    for d, l, c in tests:
-        print(f'pp {dm.subject_nr.unique[0]}, dv: {d}, level: {l}, condition: {c}')
+    for i, (d, l, c) in enumerate(tests):
+        print(f'({i} / {len(tests)}), pp {dm.subject_nr.unique[0]}, dv: {d}, level: {l}, condition: {c}')
         # do_cpt.clear()
         stats <<= do_cpt(dm, d, l, c)
     return stats
