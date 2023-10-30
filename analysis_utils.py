@@ -16,9 +16,13 @@ FULL_FREQS = np.arange(4, 30, 2)
 T1_TRIGGER = 2
 RSVP_TRIGGER = 1
 PERMUTATIONS = 1000
-DV = ['pz', 'theta', 'fz', 'cz', 'pupil']
-LEVEL = ['probe', 'control', 'target']
+DV = ['theta', 'fz', 'pupil']
+LEVEL = ['probe', 'control']
 CONDITION = ['familiar', 'unfamiliar']
+
+# DV = ['pz', 'theta', 'fz', 'cz', 'pupil']
+# LEVEL = ['probe', 'control', 'target']
+# CONDITION = ['familiar', 'unfamiliar']
 
 @fnc.memoize(persistent=True, folder='_processed')
 def proc_subject(subject, stats=True):
