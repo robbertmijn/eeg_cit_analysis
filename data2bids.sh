@@ -1,1 +1,1 @@
-data2bids --source-path data --target-path data -s 3 -t june23_face_exp
+data2bids --source-path data --target-path data -s 23 -t june23_face_exp

@@ -26,13 +26,29 @@ CONDITION = ['familiar', 'unfamiliar']
 
 @fnc.memoize(persistent=True, folder='_processed')
 def proc_subject(subject, stats=True):
+    """
+    processes a subject
 
+    Parameters
+    ----------
+    subject_nr: int
+        subject number
+
+    Returns
+    -------
+    sdm: DataMatrix
+        preprocessed data of the subject
+    """
+
+    # Use eet function to preprocess the data using MNE functions
     print(f'read subject {subject}')
     raw, events, metadata = eet.read_subject(subject, eeg_preprocessing = True)
 
+    # use our own function to extract pupil, ERP, and theta traces and save in a DataMatrix
     print(f'extracting dm {subject}')
     sdm = extract_dm(raw, events, metadata)
 
+    # do stats if requested
     if stats:
         print(f'calculate all stats {subject}')
         stats = do_all_cpt(sdm.T1_correct == 1, DV, LEVEL, CONDITION)
